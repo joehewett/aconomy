@@ -11,7 +11,7 @@ Things I'd like to see agents doing:
 - Using the chat to coordinate actions, e.g. "I'll buy a mine if you buy a farm"
 
 ### Future Features 
-- **Constraints**: 
+- **Constraints**: You could make it so that the only way to advance is via a certain tactic that the agents have to figure out together, e.g. if there is only 50 gold total between 3 agents, and a Mine costs 50 gold, they will have to pool their resources to buy it. 
 - **Skills**: Agents can have different skills that affect their abilities, e.g. negotiation, deception, resource management.
 - **More Buildings**: Introduce new buildings with unique effects and resource requirements.
 - **More Resources**: Add new resources with different uses and trade values.
