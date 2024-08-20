@@ -4,6 +4,8 @@ import (
 	"log"
 	"strings"
 	"text/template"
+
+	openai "github.com/sashabaranov/go-openai"
 )
 
 var templateData = struct {
@@ -111,4 +113,16 @@ Please explain your reasoning for each action you take.
 	}
 
 	return tempWriter.String()
+}
+
+func basePrompt() []openai.ChatCompletionMessage {
+	sysPrompt := getSystemPrompt()
+
+	// fmt.Printf("System prompt: %s\n", sysPrompt)
+	return []openai.ChatCompletionMessage{
+		{
+			Role:    "system",
+			Content: sysPrompt,
+		},
+	}
 }

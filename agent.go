@@ -28,16 +28,34 @@ func (a *Agent) IncrementTurn() {
 	a.AddTurnLog("Performing mandatory start-of-turn actions...")
 }
 
-func (a *Agent) TakeTurn(g *Game, actionCount int) error {
-	a.AddTurnLog(fmt.Sprintf("Current state: Gold: %d, Wheat: %d, Workers: %d, Buildings: %+v", a.Gold, a.Wheat, a.Workers, a.Buildings))
-
-	a.AddTurnLog("First, please outline your strategy for this turn. Afterwards, you will be prompted to take actions one by one.")
-	msg, err := getReasoningFromLM(a.Prompt)
-	if err != nil {
-		return fmt.Errorf("failed to call LM: %w", err)
+func (a *Agent) TakeTurn(g *Game, actionCount int) (t *AgentTurn, e error) {
+	turn := AgentTurn{
+		AgentID: a.ID,
+		StartState: State{
+			Gold:      a.Gold,
+			Wheat:     a.Wheat,
+			Workers:   a.Workers,
+			Buildings: a.Buildings,
+		},
 	}
 
-	a.AddAgentMessage(msg)
+	// Set the error on the returned turn if one occurs
+	defer func() {
+		if e != nil {
+			turn.Error = e
+		}
+	}()
+
+	a.AddTurnLog(fmt.Sprintf("Current state: Gold: %d, Wheat: %d, Workers: %d, Buildings: %+v", a.Gold, a.Wheat, a.Workers, a.Buildings))
+	a.AddTurnLog("First, please outline your strategy for this turn. Afterwards, you will be prompted to take actions one by one.")
+
+	strategy, err := getReasoningFromLM(a.Prompt)
+	if err != nil {
+		return &turn, fmt.Errorf("failed to call LM: %w", err)
+	}
+
+	a.AddAgentMessage(strategy)
+	turn.Strategy = strategy
 
 	actionsLeft := actionCount
 
@@ -51,30 +69,35 @@ func (a *Agent) TakeTurn(g *Game, actionCount int) error {
 
 		toolCall, err := getToolCall(a.Prompt)
 		if err != nil {
-			return fmt.Errorf("failed to get tool call: %w", err)
+			return &turn, fmt.Errorf("failed to get tool call: %w", err)
 		}
+
+		turn.Action = toolCall.Function.Name
 
 		a.AddTurnLog(fmt.Sprintf("You chose to take action: %v", toolCall.Function.Name))
 
 		err = a.TakeAction(g, *toolCall)
 		if err != nil {
-			return fmt.Errorf("failed to take action: %w", err)
+			return &turn, fmt.Errorf("failed to take action: %w", err)
 		}
 
 		actionsLeft--
 	}
 
 	a.AddTurnLog("Your turn has ended. Please explain your reasoning for your actions, how you think your turn went, any unforseen issues that arose or future issues you see arising, and any other thoughts you have.")
-	msg, err = getReasoningFromLM(a.Prompt)
+	postRationalisation, err := getReasoningFromLM(a.Prompt)
 	if err != nil {
-		return fmt.Errorf("failed to call LM: %w", err)
+		return &turn, fmt.Errorf("failed to call LM: %w", err)
 	}
 
-	a.AddAgentMessage(msg)
+	a.AddAgentMessage(postRationalisation)
+	turn.PostRationalisation = postRationalisation
 
 	a.AddTurnLog("Your turn has now ended. Waiting for other agents to finish their turns...")
 
-	return nil
+	turn.FullPrompt = a.Prompt
+
+	return &turn, nil
 }
 
 func (a *Agent) EndTurn(g *Game) {
@@ -370,6 +393,6 @@ func (a *Agent) AddTurnLog(log string) {
 }
 
 func (a *Agent) AddAgentMessage(msg string) {
-	fmt.Println(msg)
+	// fmt.Println(msg)
 	a.Prompt = append(a.Prompt, openai.ChatCompletionMessage{Role: "assistant", Content: msg})
 }
