@@ -39,43 +39,36 @@ const TurnDisplay: React.FC<TurnDisplayProps> = ({ agentTurn }) => {
     return Array(count).fill(emoji).join('');
   }
 
+  function buildingsString(buildings: { Type: string, Manned: boolean }[]) {
+    return buildings.map(building => {
+      return `${building.Type == 'Farm' ? '🚜' : '⛏️'} ${building.Manned ? '(manned)' : '(unmanned)'}`;
+    }).join(', ');
+  }
+
   return (
-    <Card className="w-[700px] font-mono text-left">
+    <Card className="col-span-1 font-mono text-left">
       <CardHeader>
         <CardTitle>Agent {agentTurn.AgentID} // Turn {agentTurn.Turn}</CardTitle>
-        <CardDescription>Action: {agentTurn.Action}</CardDescription>
+        <CardDescription className="space-y-4">
+          <span className="text-lg">
+            Action: {agentTurn.Action}
+          </span>
+        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid cols-2 w-full items-start gap-4">
+        <div className="grid w-full items-start gap-4">
           <div className="flex flex-col space-y-1.5 items-start text-left">
-            <p>Gold: 🪙 {agentTurn.StartState.Gold}</p>
-            <p>Wheat: {emojiString(agentTurn.StartState.Wheat, '🌾')}</p>
-            <p>Workers: {emojiString(agentTurn.StartState.Workers, '👷')}</p>
-            {agentTurn.StartState.Buildings.length > 0 && (
-              <Label>🏠 Buildings:</Label>
-            )}
-            {agentTurn.StartState.Buildings.map((building, idx) => (
-              <p key={idx}>
-                {building.Type} {building.Manned ? '👨‍🌾' : '❌'}
-              </p>
-            ))}
+            <p>Gold: 🪙 {agentTurn.StartState.Gold} --&gt; {agentTurn.EndState.Gold}</p>
+            <p>Wheat: {emojiString(agentTurn.EndState.Wheat, '🌾')} {agentTurn.StartState.Wheat} --&gt; {agentTurn.EndState.Wheat}</p>
+            <p>Workers: {emojiString(agentTurn.StartState.Workers, '👷')} {agentTurn.StartState.Workers} --&gt; {agentTurn.EndState.Workers}</p>
+            <p>Buildings: {buildingsString(agentTurn.EndState.Buildings)} {agentTurn.StartState.Buildings.length} --&gt; {agentTurn.EndState.Buildings.length}</p>
           </div>
           <div className="flex flex-col space-y-1.5">
+            <Label>🧠 Strategy</Label>
             <p>{agentTurn.Strategy}</p>
           </div>
-          <div className="flex flex-col space-y-1.5 items-start text-left">
-            <p>Gold: 🪙 {agentTurn.EndState.Gold}</p>
-            <p>Wheat: {emojiString(agentTurn.EndState.Wheat, '🌾')}</p>
-            <p>Workers: {emojiString(agentTurn.EndState.Workers, '👷')}</p>
-            <Label>🏠 Buildings:</Label>
-            {agentTurn.EndState.Buildings.map((building, idx) => (
-              <p key={idx}>
-                {building.Type} {building.Manned ? '👨‍🌾' : '❌'}
-              </p>
-            ))}
-          </div>
           <div className="flex flex-col space-y-1.5">
-            <Label>💭 Post Rationalisation:</Label>
+            <Label>💭 Post Rationalisation</Label>
             <p>{agentTurn.PostRationalisation}</p>
           </div>
           {agentTurn.Error && (

@@ -30,6 +30,7 @@ func (a *Agent) IncrementTurn() {
 
 func (a *Agent) TakeTurn(g *Game, actionCount int) (t *AgentTurn, e error) {
 	turn := AgentTurn{
+		Turn:    a.Turn,
 		AgentID: a.ID,
 		StartState: State{
 			Gold:      a.Gold,
@@ -96,6 +97,13 @@ func (a *Agent) TakeTurn(g *Game, actionCount int) (t *AgentTurn, e error) {
 	a.AddTurnLog("Your turn has now ended. Waiting for other agents to finish their turns...")
 
 	turn.FullPrompt = a.Prompt
+
+	turn.EndState = State{
+		Gold:      a.Gold,
+		Wheat:     a.Wheat,
+		Workers:   a.Workers,
+		Buildings: a.Buildings,
+	}
 
 	return &turn, nil
 }

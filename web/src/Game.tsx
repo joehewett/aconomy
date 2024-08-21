@@ -65,10 +65,11 @@ const GameSimulation: React.FC = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Game State</h1>
-      <div className="grid grid-row-1 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         {Object.entries(gameState).map(([turnID, turns]) => (
           <TurnDisplay key={turnID} agentTurn={turns} />
         ))}
+
       </div>
     </div>
   );

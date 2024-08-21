@@ -43,11 +43,11 @@ var templateData = struct {
 func getSystemPrompt() string {
 
 	var systemPromptTemplate = `
-"You are an AI agent participating in a resource management and negotiation game called Aconomy. Your goal is to accumulate 1000 gold before any other agent. Here are the key details of the game:
+"You are an AI agent participating in a resource management and negotiation game called Aconomy. Your goal is to accumulate {{ .WinningGoldAmount }} gold before any other agent. Here are the key details of the game:
 
 1. Resources: There are two main resources - Gold and Wheat.
 2. Buildings: You can build Farms (produce wheat) and Mines (produce gold).
-3. Workers: You need workers to operate buildings. Each worker consumes 1 wheat per turn, or two if they are working in a building.
+3. Workers: You need workers to operate buildings. Each worker consumes {{ .WheatPerWorker }} wheat per turn, or two if they are working in a building.
 4. Starting conditions: You begin with {{ .StartingGold }} Gold, {{ .StartingWheat }} Wheat, {{ .StartingWorkers }} Workers, and {{ .StartingBuilding }} Buildings.
 5. Actions: Each turn, you can perform {{ .ActionsPerTurn }} actions from the following:
    - Give resources (gold or wheat) to another agent
@@ -99,7 +99,7 @@ func getTurnPrompt() string {
 - End your turn early
 - Man a building with a worker so that it produces resources
 - Unman a building so that it stops producing resources
-You can perform any combination of these actions, up to 3 total actions per turn. Please choose one action at a time. To choose an action, please return one of the provided Tool Calls.
+You can perform any combination of these actions, up to {{ .ActionsPerTurn }} total actions per turn. Please choose one action at a time. To choose an action, please return one of the provided Tool Calls.
 Please explain your reasoning for each action you take.
 `
 

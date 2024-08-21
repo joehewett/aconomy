@@ -78,9 +78,10 @@ type Game struct {
 	Done        chan struct{}
 }
 
-type GameLog []map[int]AgentTurn
+type GameLog []AgentTurn
 
 type AgentTurn struct {
+	Turn                int
 	AgentID             int
 	StartState          State
 	Strategy            string
@@ -127,9 +128,9 @@ func NewGame(conn *websocket.Conn) *Game {
 // RunGame manages the main game loop
 func RunGame(game *Game) {
 	for game.CurrentTurn < MaxTurns && game.Winner == nil {
-		var agentTurns = make(map[int]AgentTurn, len(game.Agents))
 
 		for i := range game.Agents {
+			var agentTurn AgentTurn
 			select {
 			case <-game.Done:
 				fmt.Printf("Game end detected, breaking out of game loop\n")
@@ -141,8 +142,7 @@ func RunGame(game *Game) {
 				continue
 			}
 
-			t := ProcessTurn(&game.Agents[i], game)
-			agentTurns[i] = t
+			agentTurn = ProcessTurn(&game.Agents[i], game)
 
 			if game.Agents[i].Gold >= WinningGoldAmount {
 				game.Winner = &game.Agents[i]
@@ -152,15 +152,16 @@ func RunGame(game *Game) {
 			if isLastAgent(game.Agents, game.Agents[i].ID) {
 				game.Winner = &game.Agents[i]
 			}
+
+			err := game.PushGameState(agentTurn)
+			if err != nil {
+				fmt.Printf("Failed to push game state: %v\n", err)
+				break
+			}
 		}
 
 		game.CurrentTurn++
 
-		err := game.PushGameState(agentTurns)
-		if err != nil {
-			fmt.Printf("Failed to push game state: %v\n", err)
-			break
-		}
 	}
 
 	fmt.Printf("Game loop exiting after %d turns\n", game.CurrentTurn)
@@ -208,9 +209,9 @@ func (g *Game) End() {
 	close(g.Done)
 }
 
-func (g *Game) PushGameState(agentTurns map[int]AgentTurn) error {
-	g.GameLog = append(g.GameLog, agentTurns)
-	if err := g.Websocket.WriteJSON(agentTurns); err != nil {
+func (g *Game) PushGameState(agentTurn AgentTurn) error {
+	g.GameLog = append(g.GameLog, agentTurn)
+	if err := g.Websocket.WriteJSON(agentTurn); err != nil {
 		return fmt.Errorf("failed to write game state to websocket: %w", err)
 	}
 
