@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import StateDisplay from './StateDisplay';
+import TurnDisplay from './TurnDisplay';
+import OpenAI from 'openai';
 
-interface AgentState {
+export interface AgentState {
   Gold: number;
   Wheat: number;
   Workers: number;
@@ -14,15 +15,14 @@ export interface AgentTurn {
   Strategy: string;
   Action: string;
   EndState: AgentState;
-  FullPrompt: any[] | null;
+  FullPrompt: OpenAI.ChatCompletionMessage[];
   PostRationalisation: string;
   Error: string | null;
+  Turn: number;
 }
 
 const GameSimulation: React.FC = () => {
-  // Game state is a map of turn ID to a map of agent ID to agent turn
-  const [gameState, setGameState] = useState<{ [turnID: number]: { [agentID: number]: AgentTurn } }>({});
-  const [turn, setTurn] = useState(0);
+  const [gameState, setGameTurns] = useState<AgentTurn[]>([]);
 
   useEffect(() => {
     let url = new URL('ws://localhost:8080/ws');
@@ -33,17 +33,9 @@ const GameSimulation: React.FC = () => {
     };
 
     ws.onmessage = (evt) => {
-      let turnData = JSON.parse(evt.data);
-
-      setGameState((prevState) => {
-        console.log('Received turn data:', turnData);
-        return {
-          ...prevState,
-          [turn]: turnData
-        };
-      });
-
-      setTurn(turn + 1);
+      let turnData: AgentTurn = JSON.parse(evt.data);
+      console.log('Received:', turnData);
+      setGameTurns(prevTurns => [...prevTurns, turnData]);
     };
 
     ws.onerror = (err) => {
@@ -61,19 +53,21 @@ const GameSimulation: React.FC = () => {
     };
   }, []);
 
+  if (gameState.length === 0) {
+    return (
+      <div className="container mx-auto p-4">
+        <h1 className="text-2xl font-bold">Game State</h1>
+        <p className="text-lg">Waiting for game state...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Game State</h1>
       <div className="grid grid-row-1 gap-4">
         {Object.entries(gameState).map(([turnID, turns]) => (
-          <div key={turnID}>
-            <h2 className="text-xl font-bold mb-2">Turn {turnID}</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {Object.values(turns).map((agentTurn) => (
-                <StateDisplay key={agentTurn.AgentID} agentTurn={agentTurn} />
-              ))}
-            </div>
-          </div>
+          <TurnDisplay key={turnID} agentTurn={turns} />
         ))}
       </div>
     </div>
