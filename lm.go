@@ -11,6 +11,12 @@ import (
 
 var tools = getToolDefinitions()
 
+func validateAPIKey(apiKey string) error {
+	client := openai.NewClient(apiKey)
+	_, err := client.ListModels(context.Background())
+	return err
+}
+
 func getReasoningFromLM(prompt []openai.ChatCompletionMessage) (string, error) {
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
 	resp, err := client.CreateChatCompletion(

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import TurnDisplay from './TurnDisplay';
 import OpenAI from 'openai';
+import { Button } from './components/ui/button';
+import { Input } from './components/ui/input';
 
 export interface AgentState {
   Gold: number;
@@ -23,16 +25,42 @@ export interface AgentTurn {
 
 const GameSimulation: React.FC = () => {
   const [gameState, setGameTurns] = useState<AgentTurn[]>([]);
+  const [started, setStarted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [apiKey, setAPIKey] = useState<string>('');
+  const [websocket, setWebsocket] = useState<WebSocket | null>(null);
+
+  function storeAPIKey(apiKey: string) {
+    setAPIKey(apiKey);
+    localStorage.setItem('openai_api_key', apiKey);
+  }
 
   useEffect(() => {
+    let storedAPIKey = localStorage.getItem('openai_api_key');
+    if (storedAPIKey) {
+      setAPIKey(storedAPIKey);
+    }
+  }, []);
+
+  function StartGame() {
+    setGameTurns([]);
+    setLoading(true);
+    setError(null)
     let url = new URL('ws://localhost:8080/ws');
+    url.searchParams.append('api_key', apiKey);
+
     const ws = new WebSocket(url);
+
+    setWebsocket(ws);
 
     ws.onopen = () => {
       console.log('WebSocket is open now.');
     };
 
     ws.onmessage = (evt) => {
+      setStarted(true);
+      setLoading(false);
       let turnData: AgentTurn = JSON.parse(evt.data);
       console.log('Received:', turnData);
       setGameTurns(prevTurns => [...prevTurns, turnData]);
@@ -40,36 +68,56 @@ const GameSimulation: React.FC = () => {
 
     ws.onerror = (err) => {
       console.log('WebSocket error:', err);
+      setLoading(false);
+      setError(`Failed to connect to the server. The server might be offline. Please try again or come back later.`);
     };
 
     ws.onclose = () => {
       // Submit a close message to the server
       ws.close();
       console.log('WebSocket is closed now.');
+      setStarted(false);
     };
 
     return () => {
       ws.close();
     };
-  }, []);
+  }
 
-  if (gameState.length === 0) {
-    return (
-      <div className="container mx-auto p-4">
-        <h1 className="text-2xl font-bold">Game State</h1>
-        <p className="text-lg">Waiting for game state...</p>
-      </div>
-    );
+  function stopGame() {
+    setStarted(false);
+    if (websocket) {
+      websocket.close();
+    }
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Game State</h1>
-      <div className="grid grid-cols-3 gap-4">
-        {Object.entries(gameState).map(([turnID, turns]) => (
-          <TurnDisplay key={turnID} agentTurn={turns} />
-        ))}
+    <div className="container mx-auto py-64 font-mono">
+      <h2 className="font-serif py-4 mb-8 leading-7 text-gray-900 sm:truncate sm:text-7xl sm:tracking-tight">aconomy🌾</h2>
+      <div className="flex flex-row items-center gap-4 justify-between">
 
+        <Input type="text" className="w-64" placeholder="OpenAI API Key" onChange={(e) => storeAPIKey(e.target.value)} value={apiKey} />
+        {!started && (
+          <Button onClick={() => StartGame()} className="px-6">
+            Start{loading ? 'ing' : ''} Simulation
+            {loading && <span className="animate-spin ml-2">@</span>}
+          </Button>
+        ) || (
+            <Button onClick={() => stopGame()} className="px-6">
+              Stop Simulation
+            </Button>
+          )}
+      </div>
+
+      {error && <p className="text-red-500 mt-4">{error}</p>}
+
+      <div className="container px-0 py-4">
+        <div className="grid grid-cols-3 gap-4">
+          {Object.entries(gameState).map(([turnID, turns]) => (
+            <TurnDisplay key={turnID} agentTurn={turns} />
+          ))}
+
+        </div>
       </div>
     </div>
   );

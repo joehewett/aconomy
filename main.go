@@ -19,6 +19,18 @@ var upgrader = websocket.Upgrader{
 
 // WebSocket handler
 func wsHandler(w http.ResponseWriter, r *http.Request) {
+	apiKey := r.URL.Query().Get("api_key")
+	if apiKey == "" {
+		http.Error(w, "API key is required", http.StatusUnauthorized)
+		return
+	}
+
+	err := validateAPIKey(apiKey)
+	if err != nil {
+		http.Error(w, "Invalid API key", http.StatusUnauthorized)
+		return
+	}
+
 	// Upgrade HTTP request to a WebSocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
