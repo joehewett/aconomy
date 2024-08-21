@@ -3,6 +3,7 @@ import TurnDisplay from './TurnDisplay';
 import OpenAI from 'openai';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
+import { ActionBar } from './components/ActionBar';
 
 export interface AgentState {
   Gold: number;
@@ -97,16 +98,7 @@ const GameSimulation: React.FC = () => {
       <div className="flex flex-row items-center gap-4 justify-between">
 
         <Input type="text" className="w-64" placeholder="OpenAI API Key" onChange={(e) => storeAPIKey(e.target.value)} value={apiKey} />
-        {!started && (
-          <Button onClick={() => StartGame()} className="px-6">
-            Start{loading ? 'ing' : ''} Simulation
-            {loading && <span className="animate-spin ml-2">@</span>}
-          </Button>
-        ) || (
-            <Button onClick={() => stopGame()} className="px-6">
-              Stop Simulation
-            </Button>
-          )}
+        <ActionBar StartGame={StartGame} loading={loading} stopGame={stopGame} started={started} />
       </div>
 
       {error && <p className="text-red-500 mt-4">{error}</p>}
