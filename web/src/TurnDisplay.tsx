@@ -1,5 +1,4 @@
-// src/StateDisplay.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { AgentTurn } from './Game';
 import { Button } from "./components/ui/button"
 import {
@@ -10,45 +9,28 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/ui/card"
-import { Input } from "./components/ui/input"
 import { Label } from "./components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./components/ui/select"
 import { PromptModal } from "./components/PromptModal"
-
-
 
 interface TurnDisplayProps {
   agentTurn: AgentTurn;
 }
 
-
 const TurnDisplay: React.FC<TurnDisplayProps> = ({ agentTurn }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
-
   function emojiString(count: number, emoji: string) {
     return Array(count).fill(emoji).join('');
   }
 
   function buildingsString(buildings: { Type: string, Manned: boolean }[]) {
     return buildings.map(building => {
-      return `${building.Type == 'Farm' ? '🚜' : '⛏️'} ${building.Manned ? '(manned)' : '(unmanned)'}`;
+      return `${building.Type === 'Farm' ? '🚜' : '⛏️'} ${building.Manned ? '(manned)' : '(unmanned)'}`;
     }).join(', ');
   }
 
   return (
     <Card className="col-span-1 font-mono text-left">
       <CardHeader>
-        <CardTitle>Agent {agentTurn.AgentID} // Turn {agentTurn.Turn}</CardTitle>
+        <CardTitle>Agent {agentTurn.AgentID} / / Turn {agentTurn.Turn}</CardTitle>
         <CardDescription className="space-y-4">
           <span className="text-lg">
             Action: {agentTurn.Action}
