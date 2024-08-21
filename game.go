@@ -70,12 +70,13 @@ type Building struct {
 
 // Game represents the overall game state
 type Game struct {
-	Agents      []Agent
-	GameLog     GameLog
-	CurrentTurn int
-	Winner      *Agent
-	Websocket   *websocket.Conn
-	Done        chan struct{}
+	Agents       []Agent
+	GameLog      GameLog
+	CurrentTurn  int
+	Winner       *Agent
+	Websocket    *websocket.Conn
+	Done         chan struct{}
+	OpenAIapiKey string
 }
 
 type GameLog []AgentTurn
@@ -100,14 +101,15 @@ type State struct {
 }
 
 // NewGame initializes a new game with the specified number of agents
-func NewGame(conn *websocket.Conn) *Game {
+func NewGame(conn *websocket.Conn, openaiApiKey string) *Game {
 	game := &Game{
-		Agents:      make([]Agent, NumAgents),
-		GameLog:     GameLog{},
-		CurrentTurn: 0,
-		Winner:      nil,
-		Websocket:   conn,
-		Done:        make(chan struct{}),
+		Agents:       make([]Agent, NumAgents),
+		GameLog:      GameLog{},
+		CurrentTurn:  0,
+		Winner:       nil,
+		Websocket:    conn,
+		Done:         make(chan struct{}),
+		OpenAIapiKey: openaiApiKey,
 	}
 
 	for i := 0; i < NumAgents; i++ {

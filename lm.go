@@ -17,8 +17,8 @@ func validateAPIKey(apiKey string) error {
 	return err
 }
 
-func getReasoningFromLM(prompt []openai.ChatCompletionMessage) (string, error) {
-	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+func getReasoningFromLM(prompt []openai.ChatCompletionMessage, key string) (string, error) {
+	client := openai.NewClient(key)
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
@@ -39,8 +39,8 @@ func getReasoningFromLM(prompt []openai.ChatCompletionMessage) (string, error) {
 	return resp.Choices[0].Message.Content, nil
 }
 
-func getToolCall(messages []openai.ChatCompletionMessage) (*openai.ToolCall, error) {
-	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
+func getToolCall(messages []openai.ChatCompletionMessage, key string) (*openai.ToolCall, error) {
+	client := openai.NewClient(os.Getenv(key))
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{

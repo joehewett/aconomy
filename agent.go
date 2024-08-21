@@ -50,7 +50,7 @@ func (a *Agent) TakeTurn(g *Game, actionCount int) (t *AgentTurn, e error) {
 	a.AddTurnLog(fmt.Sprintf("Current state: Gold: %d, Wheat: %d, Workers: %d, Buildings: %+v", a.Gold, a.Wheat, a.Workers, a.Buildings))
 	a.AddTurnLog("First, please outline your strategy for this turn. Afterwards, you will be prompted to take actions one by one.")
 
-	strategy, err := getReasoningFromLM(a.Prompt)
+	strategy, err := getReasoningFromLM(a.Prompt, g.OpenAIapiKey)
 	if err != nil {
 		return &turn, fmt.Errorf("failed to call LM: %w", err)
 	}
@@ -68,7 +68,7 @@ func (a *Agent) TakeTurn(g *Game, actionCount int) (t *AgentTurn, e error) {
 
 		a.AddTurnLog(fmt.Sprintf("Please choose your next action. You have %d actions left for this turn", actionsLeft))
 
-		toolCall, err := getToolCall(a.Prompt)
+		toolCall, err := getToolCall(a.Prompt, g.OpenAIapiKey)
 		if err != nil {
 			return &turn, fmt.Errorf("failed to get tool call: %w", err)
 		}
@@ -86,7 +86,7 @@ func (a *Agent) TakeTurn(g *Game, actionCount int) (t *AgentTurn, e error) {
 	}
 
 	a.AddTurnLog("Your turn has ended. Please explain your reasoning for your actions, how you think your turn went, any unforseen issues that arose or future issues you see arising, and any other thoughts you have.")
-	postRationalisation, err := getReasoningFromLM(a.Prompt)
+	postRationalisation, err := getReasoningFromLM(a.Prompt, g.OpenAIapiKey)
 	if err != nil {
 		return &turn, fmt.Errorf("failed to call LM: %w", err)
 	}

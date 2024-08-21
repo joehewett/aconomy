@@ -47,7 +47,10 @@ const GameSimulation: React.FC = () => {
     setGameTurns([]);
     setLoading(true);
     setError(null)
-    let url = new URL('ws://localhost:8080/ws');
+
+    let host = process.env.SERVER_HOST || 'localhost';
+
+    let url = new URL(`ws://${host}:8080/ws`);
     url.searchParams.append('api_key', apiKey);
 
     const ws = new WebSocket(url);

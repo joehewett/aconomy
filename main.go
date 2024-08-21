@@ -19,13 +19,13 @@ var upgrader = websocket.Upgrader{
 
 // WebSocket handler
 func wsHandler(w http.ResponseWriter, r *http.Request) {
-	apiKey := r.URL.Query().Get("api_key")
-	if apiKey == "" {
+	openAIapiKey := r.URL.Query().Get("api_key")
+	if openAIapiKey == "" {
 		http.Error(w, "API key is required", http.StatusUnauthorized)
 		return
 	}
 
-	err := validateAPIKey(apiKey)
+	err := validateAPIKey(openAIapiKey)
 	if err != nil {
 		http.Error(w, "Invalid API key", http.StatusUnauthorized)
 		return
@@ -43,7 +43,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	// Start a game
-	game := NewGame(conn)
+	game := NewGame(conn, openAIapiKey)
 
 	// Ping the client periodically to see if the connection is still alive
 	go func() {
