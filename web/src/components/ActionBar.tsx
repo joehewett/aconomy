@@ -107,12 +107,12 @@ export function ActionBar({ StartGame, loading, stopGame, started }: ActionBarPr
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          {!started && (
+          {(!started && (
             <Button onClick={() => StartGame()} className="px-6" variant="outline">
               Start{loading ? 'ing' : ''} Simulation
               {loading && <span className="animate-spin ml-2">@</span>}
             </Button>
-          ) || (
+          )) || (
               <Button onClick={() => stopGame()} className="px-6 ml-4" variant="outline">
                 Stop Simulation
               </Button>
