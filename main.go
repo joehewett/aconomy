@@ -84,7 +84,7 @@ func main() {
 	fmt.Println(string(output))
 
 	fmt.Printf("Server running on 8080\n")
-	err := http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
+	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
 	if err != nil {
 		fmt.Println("Server failed:", err)
 	}
