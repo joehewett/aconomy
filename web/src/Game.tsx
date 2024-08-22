@@ -48,10 +48,7 @@ const GameSimulation: React.FC = () => {
     setLoading(true);
     setError(null)
 
-    console.log('env var: ', process.env.RAILWAY_PUBLIC_DOMAIN);
-    console.log('react app env var: ', process.env.REACT_APP_RAILWAY_PUBLIC_DOMAIN);
-
-    let host = process.env.SERVER_HOST;
+    let host = process.env.REACT_APP_SERVER_HOST;
 
     if (!host) {
       setError('Server host not set. Please check the environment variables.');
