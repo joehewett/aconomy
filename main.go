@@ -6,13 +6,8 @@ import (
 	"os"
 	"time"
 
-	_ "embed"
-
 	"github.com/gorilla/websocket"
 )
-
-// Embed the certificate and key in the binary
-//go:embed cert.pem
 
 // Define the WebSocket upgrader
 var upgrader = websocket.Upgrader{
@@ -82,7 +77,7 @@ func main() {
 	port := os.Getenv("WEBSOCKET_PORT")
 
 	fmt.Printf("Server running on port %s\n", port)
-	err := http.ListenAndServeTLS(fmt.Sprintf(":%s", port), "cert.pem", "key.pem", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
 		fmt.Println("Server failed:", err)
 	}
