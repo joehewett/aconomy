@@ -48,9 +48,15 @@ const GameSimulation: React.FC = () => {
     setLoading(true);
     setError(null)
 
-    let host = process.env.SERVER_HOST || 'localhost';
+    let host = process.env.SERVER_HOST;
 
-    let url = new URL(`ws://${host}:8080/ws`);
+    if (!host) {
+      setError('Server host not set. Please check the environment variables.');
+      setLoading(false);
+      return;
+    }
+
+    let url = new URL(host);
     url.searchParams.append('api_key', apiKey);
 
     const ws = new WebSocket(url);
@@ -102,7 +108,12 @@ const GameSimulation: React.FC = () => {
         <ActionBar StartGame={StartGame} loading={loading} stopGame={stopGame} started={started} />
       </div>
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4" role="alert">
+          <strong className="font-bold">Error:</strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
 
       <div className="container px-0 py-4">
         <div className="grid grid-cols-3 gap-4">

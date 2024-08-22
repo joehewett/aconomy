@@ -101,7 +101,7 @@ type State struct {
 }
 
 // NewGame initializes a new game with the specified number of agents
-func NewGame(conn *websocket.Conn, openaiApiKey string) *Game {
+func NewGame(conn *websocket.Conn, openAIapiKey string) *Game {
 	game := &Game{
 		Agents:       make([]Agent, NumAgents),
 		GameLog:      GameLog{},
@@ -109,7 +109,7 @@ func NewGame(conn *websocket.Conn, openaiApiKey string) *Game {
 		Winner:       nil,
 		Websocket:    conn,
 		Done:         make(chan struct{}),
-		OpenAIapiKey: openaiApiKey,
+		OpenAIapiKey: openAIapiKey,
 	}
 
 	for i := 0; i < NumAgents; i++ {
