@@ -60,6 +60,7 @@ const GameSimulation: React.FC = () => {
     url.searchParams.append('api_key', apiKey);
 
     const ws = new WebSocket(url);
+    console.log(ws)
 
     setWebsocket(ws);
 
@@ -75,7 +76,11 @@ const GameSimulation: React.FC = () => {
       setGameTurns(prevTurns => [...prevTurns, turnData]);
     };
 
-    ws.onerror = (err) => {
+    ws.onerror = (err: Event) => {
+      if (err instanceof ErrorEvent) {
+        setError(`Err.message is ${err.message}`);
+        return;
+      }
       console.log('WebSocket error:', err);
       setLoading(false);
       setError(`Failed to connect to the server. The server might be offline. Please try again or come back later.`);

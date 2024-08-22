@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os/exec"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -74,17 +74,10 @@ func main() {
 	// WebSocket endpoint
 	http.HandleFunc("/ws", wsHandler)
 
-	// Debug: ls the cert dir to see whats in there
-	// /etc/ssl/certs/ca-certificates.crt
-	output, err := exec.Command("ls", "/etc/ssl/certs").Output()
-	if err != nil {
-		fmt.Println(err)
-	}
+	port := os.Getenv("WEBSOCKET_PORT")
 
-	fmt.Println(string(output))
-
-	fmt.Printf("Server running on 443\n")
-	err = http.ListenAndServe(":443", nil)
+	fmt.Printf("Server running on port %s\n", port)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 	if err != nil {
 		fmt.Println("Server failed:", err)
 	}
