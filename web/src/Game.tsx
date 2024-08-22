@@ -103,9 +103,14 @@ const GameSimulation: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto py-64 font-mono">
-      <h2 className="font-serif py-4 mb-8 leading-7 text-gray-900 sm:truncate sm:text-7xl sm:tracking-tight">aconomy🌾</h2>
+    <div className="container mx-auto py-32 font-mono">
       <div className="flex flex-row items-center gap-4 justify-between">
+        <div>
+          <h2 className="text-left  font-serif py-4 leading-7 text-gray-900 sm:truncate sm:text-7xl sm:tracking-tight">aconomy🌾</h2>
+          {/* Subtitle */}
+          <p className="text-gray-600 text-left"></p>
+
+        </div>
         <Input type="text" className="w-64" placeholder="OpenAI API Key" onChange={(e) => storeAPIKey(e.target.value)} value={apiKey} />
         <ActionBar StartGame={StartGame} loading={loading} stopGame={stopGame} started={started} />
       </div>
