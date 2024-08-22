@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
 
 	openai "github.com/sashabaranov/go-openai"
 	jsonschema "github.com/sashabaranov/go-openai/jsonschema"
@@ -13,8 +12,13 @@ var tools = getToolDefinitions()
 
 func validateAPIKey(apiKey string) error {
 	client := openai.NewClient(apiKey)
-	_, err := client.ListModels(context.Background())
-	return err
+	r, err := client.ListModels(context.Background())
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("ListModels: %v\n", r.Models)
+	return nil
 }
 
 func getReasoningFromLM(prompt []openai.ChatCompletionMessage, key string) (string, error) {
@@ -40,7 +44,7 @@ func getReasoningFromLM(prompt []openai.ChatCompletionMessage, key string) (stri
 }
 
 func getToolCall(messages []openai.ChatCompletionMessage, key string) (*openai.ToolCall, error) {
-	client := openai.NewClient(os.Getenv(key))
+	client := openai.NewClient(key)
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os/exec"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -73,8 +74,17 @@ func main() {
 	// WebSocket endpoint
 	http.HandleFunc("/ws", wsHandler)
 
+	// Debug: ls the cert dir to see whats in there
+	// /etc/ssl/certs/ca-certificates.crt
+	output, err := exec.Command("ls", "/etc/ssl/certs").Output()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(output))
+
 	fmt.Printf("Server running on 8080\n")
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", nil)
 	if err != nil {
 		fmt.Println("Server failed:", err)
 	}

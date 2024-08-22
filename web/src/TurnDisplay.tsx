@@ -43,7 +43,9 @@ const TurnDisplay: React.FC<TurnDisplayProps> = ({ agentTurn }) => {
             <p>Gold: 🪙 {agentTurn.StartState.Gold} --&gt; {agentTurn.EndState.Gold}</p>
             <p>Wheat: {emojiString(agentTurn.EndState.Wheat, '🌾')} {agentTurn.StartState.Wheat} --&gt; {agentTurn.EndState.Wheat}</p>
             <p>Workers: {emojiString(agentTurn.StartState.Workers, '👷')} {agentTurn.StartState.Workers} --&gt; {agentTurn.EndState.Workers}</p>
-            <p>Buildings: {buildingsString(agentTurn.EndState.Buildings)} {agentTurn.StartState.Buildings.length} --&gt; {agentTurn.EndState.Buildings.length}</p>
+            {(agentTurn.StartState.Buildings && agentTurn.EndState.Buildings) && (
+              <p>Buildings: {buildingsString(agentTurn.EndState.Buildings)} {agentTurn.StartState.Buildings.length} --&gt; {agentTurn.EndState.Buildings.length}</p>
+            )}
           </div>
           <div className="flex flex-col space-y-1.5">
             <Label>🧠 Strategy</Label>
@@ -62,9 +64,9 @@ const TurnDisplay: React.FC<TurnDisplayProps> = ({ agentTurn }) => {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button variant="outline">Close</Button>
-
-        <PromptModal agentTurn={agentTurn} />
+        {agentTurn.FullPrompt && (
+          <PromptModal agentTurn={agentTurn} />
+        )}
 
       </CardFooter>
     </Card>
